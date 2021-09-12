@@ -1,0 +1,265 @@
+---
+title: "Assignment 3"
+author: "Ajay Kumar 4644464"
+date: "12/09/2021"
+output: html_document
+---
+
+### Installing and calling the libraries.
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(knitr)
+library(tidymodels)
+library(ranger)
+library(skimr)
+```
+
+
+### Calling the dataset and naming it as food.
+
+
+```{r}
+
+food <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-18/food_consumption.csv")
+
+```
+
+### Converting the character data types to factor.
+
+```{r}
+
+food <- food %>%
+  mutate_if(is.character, factor)
+
+food %>% head()
+
+#Displaying first 6 rows of dataset
+
+food %>% tail()
+
+#Displaying last 6 rows of dataset
+
+str(food)
+
+#displaying the data set shape.
+```
+
+
+### Generating the general statistics of the dataset using summary() and skim() functions.
+
+```{r }
+skim(food) %>% 
+  kable()
+
+summary(food) %>% 
+  kable()
+```
+
+
+# ***Can we predict the final CO2 emmission by knowing their consumption and food category?***
+
+## Sub question: *How many types of food_categories are there?*
+
+## *What is the relation between the consumption and the final co2_emmission.*
+
+## *What is the relation between the consumption and the final co2_emmission depending on food_category?*
+
+
+### ***How many types of food_categories are there?***
+
+```{r}
+
+food %>%
+  count(food_category) %>%
+  kable()
+
+# using count function to display no of food categories
+
+```
+
+#### There are 11 food_categories with 130 observations in each.
+
+### ***What is the relation between the consumption and the final co2_emmission.***
+
+```{r}
+food %>%
+  ggplot(aes(consumption, co2_emmission)) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE)
+
+# using ggplot and liner method functions to display the relation.
+```
+
+
+####  The slope of the line shows a positive relation between the consumption and the final co2_emmission.
+
+### ***What is the relation between the consumption and the final co2_emmission depending on food_category?***
+
+```{r}
+
+food %>%
+  ggplot(aes(consumption, co2_emmission, colour = food_category)) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE) +
+  scale_color_viridis_d(option = "plasma", end = .7) +
+  labs(x = "Consumption", y = "Final CO2 Emmission", colour = "Food Category", title = "Dependence of consumption on CO2 Emmission")
+
+```
+
+
+#### It is clear that all the slope shows a positive relation.These food categories which have high consumption tend to emit more CO2. This means, the final emission of the food type is dependent on their consumption.
+
+
+# ***Predictive Analysis***
+
+#### From our descriptive analysis, we have found that the final co2emmission of the foodtype can be predicted by knowing their consumption and food_category. We will now build a model to make these predictions.
+
+
+### **Step 1: Split the dataset into Training & Testing datasets.**
+
+```{r}
+
+food_split <- initial_split(food)
+
+# splitting the data for training and testing purposes - on 3/4 data for training and 1/4 data for testing.
+
+food_train <- training(food_split)
+
+# training the data set
+
+food_test <- testing(food_split)
+
+# testing the data set
+```
+
+### **Step 2: Pre-process the data.**
+
+#### *2.1 Set the recipe & get the ingredients - recipe()*
+#### *For this modelling, we will use only 3 variables from the dataset.*
+
+#### *Since we are predicting the final co2emmissions of different food_category, width is our Output variable and the other 2 variables (food_category and consumption) are our Input variables or Predictors.*
+
+```{r}
+
+food_recipe <- recipe(co2_emmission ~ food_category + consumption + co2_emmission, data = food_train) 
+
+# creating a recipe for our data set
+
+summary(food_recipe) 
+
+# displaying the summary of our recipe
+```
+
+### **2.2 Write the recipe steps - step_food()**
+
+#### *Success of modelling depends on the "quality" of data. To ensure this quality, there are few transformations that are necessary in our dataset.*
+
+#### *Whenever we have numeric values in our dataset, to avoid the outliers we need to normalise it by "Centering" & "Scalling" by using the functions - [step_center() & step_scale()]*
+
+#### *We also need to remove any numeric variables that are closely related (=correlated) by using the function - [step_corr()]*
+
+
+```{r}
+food_recipe <- food_recipe %>%
+  
+  # Normalises numeric data to have a mean of zero
+  
+  step_center(all_numeric(), -all_outcomes()) %>% 
+  
+  # Normalizes numeric data to have a standard deviation of one
+  
+  step_scale(all_numeric(), -all_outcomes()) %>% 
+  
+  # removes variables that are too closely related
+  
+  step_corr(all_numeric())
+
+```
+
+### **2.3 Get ready with the prep by using function - prep()**
+
+```{r}
+
+food_prep <- prep(food_recipe, training = food_train)
+
+```
+
+### **2.4 Bake the recipe by using the function - bake()**
+
+```{r}
+food_bake <- bake(food_prep, food_train)
+
+food_bake
+
+```
+
+### **Step 3: Build a model**
+
+#### *There are THREE important things to remember while building a model:*
+
+#### *Mode [Regression]*
+
+#### *Model type [Linear Regression - linear_reg]*
+
+#### *Engine ["lm"]*
+
+#### *For this modelling, our Output variable is Numeric. So, we will use Regression.*
+
+#### *In statistics, linear regression is a linear approach for modelling the relationship between a scalar response and one or more explanatory variables (also known as dependent and independent variables). The case of one explanatory variable is called simple linear regression; for more than one, the process is called multiple linear regression. This term is distinct from multivariate linear regression, where multiple correlated dependent variables are predicted, rather than a single scalar variable.*
+
+#### *In linear regression, the relationships are modeled using linear predictor functions whose unknown model parameters are estimated from the data. Such models are called linear models. Most commonly, the conditional mean of the response given the values of the explanatory variables (or predictors) is assumed to be an affine function of those values; less commonly, the conditional median or some other quantile is used. Like all forms of regression analysis, linear regression focuses on the conditional probability distribution of the response given the values of the predictors, rather than on the joint probability distribution of all of these variables, which is the domain of multivariate analysis.*
+
+#### *Linear regression was the first type of regression analysis to be studied rigorously, and to be used extensively in practical applications. This is because models which depend linearly on their unknown parameters are easier to fit than models which are non-linearly related to their parameters and because the statistical properties of the resulting estimators are easier to determine.*
+
+
+### **3.1 Set up the model [mode, model type & engine]**
+
+```{r}
+
+model1 <- linear_reg() %>%
+  set_mode("regression") %>%
+  set_engine("lm")
+
+model1
+
+
+
+```
+
+### **3.2 Fit the model**
+
+```{r}
+
+model1_fitted <- model1 %>%
+  fit(co2_emmission ~ consumption * food_category, data = food_bake)
+
+summary(model1_fitted)
+
+
+```
+
+### **Step 4: Create a workflow**
+
+```{r}
+workflow <- workflow() %>%
+  add_recipe(food_recipe) %>%
+  add_model(model1)
+  
+workflow
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
