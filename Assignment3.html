@@ -541,7 +541,7 @@ food_test &lt;- testing(food_split)
 </div>
 <div id="since-we-are-predicting-the-final-co2emmissions-of-different-food_category-width-is-our-output-variable-and-the-other-2-variables-food_category-and-consumption-are-our-input-variables-or-predictors." class="section level4">
 <h4><em>Since we are predicting the final co2emmissions of different food_category, width is our Output variable and the other 2 variables (food_category and consumption) are our Input variables or Predictors.</em></h4>
-<pre class="r"><code>food_recipe &lt;- recipe(co2_emmission ~ food_category + consumption + co2_emmission, data = food_train) 
+<pre class="r"><code>food_recipe &lt;- recipe(co2_emmission ~ food_category + consumption, data = food_train) 
 
 # creating a recipe for our data set
 
@@ -592,16 +592,16 @@ food_bake</code></pre>
 <pre><code>## # A tibble: 1,072 x 3
 ##    food_category            consumption co2_emmission
 ##    &lt;fct&gt;                          &lt;dbl&gt;         &lt;dbl&gt;
-##  1 Wheat and Wheat Products       2.93          34.3 
-##  2 Rice                          -0.486          3.84
-##  3 Beef                          -0.457        139.  
-##  4 Fish                          -0.317         18.7 
-##  5 Soybeans                      -0.504          0.93
-##  6 Beef                          -0.469        118.  
-##  7 Soybeans                      -0.543          0.01
-##  8 Soybeans                      -0.534          0.23
-##  9 Nuts inc. Peanut Butter       -0.518          2.32
-## 10 Milk - inc. cheese             0.310         62.9 
+##  1 Wheat and Wheat Products      2.39           28   
+##  2 Lamb &amp; Goat                  -0.490         119.  
+##  3 Lamb &amp; Goat                  -0.511          83.4 
+##  4 Poultry                      -0.531           1.5 
+##  5 Rice                          0.425          62.6 
+##  6 Soybeans                     -0.555           0.09
+##  7 Nuts inc. Peanut Butter      -0.519           3.54
+##  8 Milk - inc. cheese            0.0254         41.4 
+##  9 Soybeans                     -0.559           0   
+## 10 Nuts inc. Peanut Butter      -0.514           3.93
 ## # ... with 1,062 more rows</code></pre>
 </div>
 <div id="step-3-build-a-model" class="section level3">

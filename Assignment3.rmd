@@ -1,6 +1,6 @@
 ---
 title: "Assignment 3"
-author: "Ajay Kumar 4644464"
+author: "Ajay Kumar 4644464 Astha Anil Dholakiya 4644484"
 date: "12/09/2021"
 output: html_document
 ---
@@ -144,7 +144,7 @@ food_test <- testing(food_split)
 
 ```{r}
 
-food_recipe <- recipe(co2_emmission ~ food_category + consumption + co2_emmission, data = food_train) 
+food_recipe <- recipe(co2_emmission ~ food_category + consumption, data = food_train) 
 
 # creating a recipe for our data set
 
@@ -225,8 +225,6 @@ model1 <- linear_reg() %>%
 
 model1
 
-
-
 ```
 
 ### **3.2 Fit the model**
@@ -237,7 +235,6 @@ model1_fitted <- model1 %>%
   fit(co2_emmission ~ consumption * food_category, data = food_bake)
 
 summary(model1_fitted)
-
 
 ```
 
