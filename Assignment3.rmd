@@ -5,11 +5,16 @@ date: "12/09/2021"
 output: html_document
 ---
 
-### Installing and calling the libraries.
+### **Installing and calling the libraries.**
 
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(echo = TRUE)
+install.packages("tidyverse")
+install.packages("knitr")
+install.packages("tidymodels")
+install.packages("ranger")
+install.packages("skimr")
 library(tidyverse)
 library(knitr)
 library(tidymodels)
@@ -18,7 +23,7 @@ library(skimr)
 ```
 
 
-### Calling the dataset and naming it as food.
+### **Calling the dataset and naming it as food.**
 
 
 ```{r}
@@ -27,7 +32,7 @@ food <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/
 
 ```
 
-### Converting the character data types to factor.
+### **Converting the character data types to factor.**
 
 ```{r}
 
@@ -48,7 +53,7 @@ str(food)
 ```
 
 
-### Generating the general statistics of the dataset using summary() and skim() functions.
+### **Generating the general statistics of the dataset using summary() and skim() functions.**
 
 ```{r }
 skim(food) %>% 
@@ -58,15 +63,24 @@ summary(food) %>%
   kable()
 ```
 
+# **BUSINESS PROBLEM:** 
 
-# ***Can we predict the final CO2 emmission by knowing their consumption and food category?***
+#### Increase in Carbondioxide Emmissions(CO2) from food consumption.
 
-## Sub question: *How many types of food_categories are there?*
+####  Approximately 20 - 25% of greenhouse emissions is produced by food. People believe that CO2 is prosuced only by fuels and Industries. But it is also produced from the food we consume.
 
-## *What is the relation between the consumption and the final co2_emmission.*
+---------------------------------------------------------------------------------------------------------------------
 
-## *What is the relation between the consumption and the final co2_emmission depending on food_category?*
+# **Main findings from the dataset:**
 
+### ***Can we predict the final CO2 emmission by knowing their consumption and food category?***
+
+### Sub questions: 
+### *How many types of food_categories are there?*
+### *What is the relation between the consumption and the final co2_emmission.*
+### *What is the relation between the consumption and the final co2_emmission depending on food_category?*
+
+-----------------------------------------------------------------------------------------------------------
 
 ### ***How many types of food_categories are there?***
 
@@ -82,6 +96,8 @@ food %>%
 
 #### There are 11 food_categories with 130 observations in each.
 
+--------------------------------------------------------------------------------------
+
 ### ***What is the relation between the consumption and the final co2_emmission.***
 
 ```{r}
@@ -96,7 +112,9 @@ food %>%
 
 ####  The slope of the line shows a positive relation between the consumption and the final co2_emmission.
 
-### ***What is the relation between the consumption and the final co2_emmission depending on food_category?***
+------------------------------------------------------------------------------------------------------------------
+
+### ***Relation between the consumption and the final co2_emmission depending on food_category?***
 
 ```{r}
 
@@ -109,8 +127,37 @@ food %>%
 
 ```
 
+-------------------------------------------------------------------------------------------------------------------------
+
+## **Is emission of CO2 gas increased when consumption is increased?**
+
+#### *Yes, If consumption is increased emission is increased.*
+
+----------------------------------------------------------------------------------
+
+#### ***Displaying CO2 Emmission For Each Food Category.***
+
+```{r}
+
+food %>%
+  ggplot(aes(consumption, co2_emmission, colour = food_category)) +
+  geom_point(size = 2.5) +
+  facet_wrap(~food_category)+
+  labs(x = "Consumption", y = "CO2 Emmission", colour = "Food Category", title = "CO2 Emmission for each Food Category")
+```
+
+
 
 #### It is clear that all the slope shows a positive relation.These food categories which have high consumption tend to emit more CO2. This means, the final emission of the food type is dependent on their consumption.
+
+------------------------------------------------------------------------------------------------------------------------
+
+# **Solution:**
+
+### *In order to reduce co2 emissions from food consumption people have to start consuming more green foods, plant based foods. Its fact that meat have good protiens but at the same time green foods also contain protiens. There is no need to ban meat but reducing the meat consumption can help us reduce c02 emmissions.*
+
+
+--------------------------------------------------------------------------------------------------------------------------
 
 
 # ***Predictive Analysis***
@@ -135,6 +182,7 @@ food_test <- testing(food_split)
 # testing the data set
 ```
 
+------------------------------------------------------------------------------------------------------------------------
 ### **Step 2: Pre-process the data.**
 
 #### *2.1 Set the recipe & get the ingredients - recipe()*
@@ -152,6 +200,8 @@ summary(food_recipe)
 
 # displaying the summary of our recipe
 ```
+
+--------------------------------------------------------------------------------------------------------------------------
 
 ### **2.2 Write the recipe steps - step_food()**
 
@@ -179,6 +229,8 @@ food_recipe <- food_recipe %>%
 
 ```
 
+-------------------------------------------------------------------
+
 ### **2.3 Get ready with the prep by using function - prep()**
 
 ```{r}
@@ -186,6 +238,8 @@ food_recipe <- food_recipe %>%
 food_prep <- prep(food_recipe, training = food_train)
 
 ```
+
+--------------------------------------------------------------------
 
 ### **2.4 Bake the recipe by using the function - bake()**
 
@@ -195,6 +249,8 @@ food_bake <- bake(food_prep, food_train)
 food_bake
 
 ```
+
+---------------------------------------------------------------------------
 
 ### **Step 3: Build a model**
 
@@ -208,12 +264,9 @@ food_bake
 
 #### *For this modelling, our Output variable is Numeric. So, we will use Regression.*
 
-#### *In statistics, linear regression is a linear approach for modelling the relationship between a scalar response and one or more explanatory variables (also known as dependent and independent variables). The case of one explanatory variable is called simple linear regression; for more than one, the process is called multiple linear regression. This term is distinct from multivariate linear regression, where multiple correlated dependent variables are predicted, rather than a single scalar variable.*
+#### *In statistics, linear regression is a linear approach for modelling the relationship between a scalar response and one or more explanatory variables (also known as dependent and independent variables).
 
-#### *In linear regression, the relationships are modeled using linear predictor functions whose unknown model parameters are estimated from the data. Such models are called linear models. Most commonly, the conditional mean of the response given the values of the explanatory variables (or predictors) is assumed to be an affine function of those values; less commonly, the conditional median or some other quantile is used. Like all forms of regression analysis, linear regression focuses on the conditional probability distribution of the response given the values of the predictors, rather than on the joint probability distribution of all of these variables, which is the domain of multivariate analysis.*
-
-#### *Linear regression was the first type of regression analysis to be studied rigorously, and to be used extensively in practical applications. This is because models which depend linearly on their unknown parameters are easier to fit than models which are non-linearly related to their parameters and because the statistical properties of the resulting estimators are easier to determine.*
-
+-------------------------------------------------------------------------------------------------------------------------
 
 ### **3.1 Set up the model [mode, model type & engine]**
 
@@ -227,6 +280,8 @@ model1
 
 ```
 
+--------------------------------------------------------------
+
 ### **3.2 Fit the model**
 
 ```{r}
@@ -237,6 +292,8 @@ model1_fitted <- model1 %>%
 summary(model1_fitted)
 
 ```
+
+-------------------------------------------------------------------
 
 ### **Step 4: Create a workflow**
 
