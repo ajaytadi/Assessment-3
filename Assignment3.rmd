@@ -8,13 +8,8 @@ output: html_document
 ### **Installing and calling the libraries.**
 
 ```{r setup, include=FALSE}
-
 knitr::opts_chunk$set(echo = TRUE)
-install.packages("tidyverse")
-install.packages("knitr")
-install.packages("tidymodels")
-install.packages("ranger")
-install.packages("skimr")
+
 library(tidyverse)
 library(knitr)
 library(tidymodels)
